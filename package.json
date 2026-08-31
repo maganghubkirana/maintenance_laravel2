@@ -1,0 +1,20 @@
+{
+  "name": "maintenance_laravel",
+  "version": "1.0.0",
+  "description": "Project ini adalah migrasi **Express + MySQL + React/Vite** menjadi **Laravel + Blade + MySQL**. React dan Express tidak lagi diperlukan.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "autoprefixer": "^10.5.4",
+    "laravel-vite-plugin": "^3.2.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.2.2"
+  }
+}
