@@ -18,7 +18,6 @@ class AuthController extends Controller
             'username'    => ['required', 'string', 'max:100', 'unique:users,username'],
             'email'       => ['required', 'email', 'max:255', 'unique:users,email'],
             'password'    => ['required', 'string', 'min:6', 'confirmed'],
-            // Tambahkan validasi untuk role & permissions
             'role'        => ['nullable', 'string', 'in:SUPERADMIN,ADMIN,ENGINEER,SUPERVISOR,MANAGER'],
             'permissions' => ['nullable', 'array'],
         ]);
@@ -27,9 +26,7 @@ class AuthController extends Controller
             'username'    => $data['username'],
             'email'       => $data['email'],
             'password'    => Hash::make($data['password']),
-            // Set role pilihan (atau fallback default ke ENGINEER/USER jika kosong)
             'role'        => $request->input('role', 'ENGINEER'),
-            // Set hak akses pilihan (atau fallback default akses ke dashboard saja)
             'permissions' => $request->input('permissions', ['dashboard']),
         ]);
 
@@ -39,19 +36,48 @@ class AuthController extends Controller
         return redirect()->route('dashboard')->with('success', 'Registrasi berhasil.');
     }
 
-    public function login(Request $request)
+   public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'username' => 'required|string', 
             'password' => 'required|string'
         ]);
 
+        $loginInput = $request->input('username');
+        $fieldType  = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $credentials = [
+            $fieldType => $loginInput,
+            'password'  => $request->input('password'),
+        ];
+
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()->withErrors(['username' => 'Username atau password salah.'])->withInput($request->only('username'));
+            return back()
+                ->withErrors(['username' => 'Username/Email atau password salah.'])
+                ->withInput($request->only('username'));
         }
 
         $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        // Redireksi Khusus Superadmin
+        if (strtoupper($user->role) === 'SUPERADMIN') {
+            return redirect()->route('select-role');
+        }
+
         return redirect()->intended(route('dashboard'));
+    }
+
+    // Tambahkan method ini untuk menampilkan view portal pilihan role
+    public function selectRole()
+    {
+        // Memastikan hanya SUPERADMIN yang bisa mengakses halaman ini
+        if (strtoupper(Auth::user()->role) !== 'SUPERADMIN') {
+            return redirect()->route('dashboard');
+        }
+
+        return view('auth.select-role');
     }
 
     public function logout(Request $request)
@@ -61,5 +87,17 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    public function dashboard(Request $request)
+    {
+        // Mengambil role aktif (jika superadmin memilih switch_role dari portal)
+        $activeRole = $request->query('switch_role', Auth::user()->role);
+
+        // Ubah 'dashboard' menjadi 'dashboard.index'
+        return view('dashboard.index', [
+            'user'       => Auth::user(),
+            'activeRole' => strtoupper($activeRole)
+        ]);
     }
 }

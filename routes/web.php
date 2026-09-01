@@ -48,3 +48,11 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{user}/permissions', [UserController::class, 'updatePermissions'])->name('users.permissions');
     });
 });
+
+Route::middleware(['auth'])->group(function () {
+    // Portal khusus pemiliham role (Role Selection)
+    Route::get('/select-role', [AuthController::class, 'selectRole'])->name('select-role');
+    
+    // Route dashboard utama
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+});
