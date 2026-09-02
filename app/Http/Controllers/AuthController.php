@@ -9,17 +9,59 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function showLogin() { return view('auth.login'); }
-    public function showRegister() { return view('auth.register'); }
+    /**
+     * Menampilkan halaman Login
+     */
+    public function showLogin()
+    {
+        return view('auth.login');
+    }
 
+    /**
+     * Menampilkan halaman Register
+     */
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Proses Register
+     */
     public function register(Request $request)
     {
         $data = $request->validate([
-            'username'    => ['required', 'string', 'max:100', 'unique:users,username'],
-            'email'       => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password'    => ['required', 'string', 'min:6', 'confirmed'],
-            'role'        => ['nullable', 'string', 'in:SUPERADMIN,ADMIN,ENGINEER,SUPERVISOR,MANAGER'],
-            'permissions' => ['nullable', 'array'],
+            'username' => [
+                'required',
+                'string',
+                'max:100',
+                'unique:users,username'
+            ],
+
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:users,email'
+            ],
+
+            'password' => [
+                'required',
+                'string',
+                'min:6',
+                'confirmed'
+            ],
+
+            'role' => [
+                'nullable',
+                'string',
+                'in:SUPERADMIN,ADMIN,ENGINEER,SUPERVISOR,MANAGER'
+            ],
+
+            'permissions' => [
+                'nullable',
+                'array'
+            ],
         ]);
 
         $user = User::create([
@@ -32,16 +74,20 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard')->with('success', 'Registrasi berhasil.');
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Registrasi berhasil.');
     }
+
 
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required|string', 
-            'password' => 'required|string'
+            'username' => 'required|string',
+            'password' => 'required|string',
         ]);
 
         $loginInput = trim($request->input('username'));
@@ -49,8 +95,9 @@ class AuthController extends Controller
 
         $credentials = [
             $fieldType => $loginInput,
-            'password'  => $request->input('password'),
+            'password' => $request->input('password'),
         ];
+
 
         // Eksekusi Autentikasi
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
@@ -59,39 +106,72 @@ class AuthController extends Controller
                 ->withInput($request->only('username'));
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | LOGIN BERHASIL
+        |--------------------------------------------------------------------------
+        */
+
         $request->session()->regenerate();
 
         $user = Auth::user();
 
-        // Redireksi Khusus Superadmin
+        /*
+        |--------------------------------------------------------------------------
+        | SUPERADMIN
+        |--------------------------------------------------------------------------
+        |
+        | Superadmin diarahkan terlebih dahulu ke halaman
+        | pemilihan role.
+        |
+        */
+
         if (strtoupper($user->role) === 'SUPERADMIN') {
             return redirect()->route('select-role');
         }
 
-        return redirect()->intended(route('dashboard'));
+        /*
+        |--------------------------------------------------------------------------
+        | USER BIASA
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()->intended(
+            route('dashboard')
+        );
     }
 
     public function selectRole()
     {
         // Safety Check: Pastikan user terautentikasi sebelum cek role
         if (!Auth::check() || strtoupper(Auth::user()->role) !== 'SUPERADMIN') {
+
             return redirect()->route('dashboard');
         }
 
         return view('auth.select-role');
     }
 
+    /**
+     * Logout
+     */
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
     }
 
+    /**
+     * Dashboard
+     */
     public function dashboard(Request $request)
     {
+
         if (!Auth::check()) {
             return redirect()->route('login');
         }
@@ -102,6 +182,7 @@ class AuthController extends Controller
         return view('dashboard.index', [
             'user'       => $user,
             'activeRole' => strtoupper($activeRole)
+
         ]);
     }
 }

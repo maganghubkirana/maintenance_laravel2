@@ -9,66 +9,97 @@ class User extends Authenticatable
 {
     use Notifiable;
 
-    /**
-     * Attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Mass Assignable
+    |--------------------------------------------------------------------------
+    */
+
     protected $fillable = [
         'username',
         'email',
         'password',
         'role',
-        'permissions', // Ditambahkan untuk menyimpan array hak akses
+        'permissions',
     ];
 
-    /**
-     * Attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Hidden Attributes
+    |--------------------------------------------------------------------------
+    */
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Casts
+    |--------------------------------------------------------------------------
+    */
+
     protected $casts = [
-        'permissions' => 'array', // Otomatis konversi format JSON dari DB ke Array di PHP
+        'permissions' => 'array',
     ];
 
-    // ==========================================
-    // HELPER PERMISSION (HAK AKSES)
-    // ==========================================
+    /*
+    |--------------------------------------------------------------------------
+    | Permission
+    |--------------------------------------------------------------------------
+    */
 
-    /**
-     * Cek apakah user memiliki izin untuk mengakses modul tertentu.
-     */
     public function hasPermission(string $permission): bool
     {
-        // SUPERADMIN otomatis selalu memiliki hak akses penuh ke semua modul
+        /*
+        |--------------------------------------------------------------------------
+        | SUPERADMIN memiliki semua permission
+        |--------------------------------------------------------------------------
+        */
+
         if (strtoupper($this->role) === 'SUPERADMIN') {
             return true;
         }
 
-        return is_array($this->permissions) && in_array($permission, $this->permissions);
+        /*
+        |--------------------------------------------------------------------------
+        | User biasa
+        |--------------------------------------------------------------------------
+        */
+
+        return is_array($this->permissions)
+            && in_array(
+                $permission,
+                $this->permissions,
+                true
+            );
     }
 
-    // ==========================================
-    // RELASI DATABASE
-    // ==========================================
+    /*
+    |--------------------------------------------------------------------------
+    | Maintenance Relationship
+    |--------------------------------------------------------------------------
+    */
 
     public function maintenanceRequests()
     {
-        return $this->hasMany(MaintenanceRequest::class, 'engineer_id');
+        return $this->hasMany(
+            MaintenanceRequest::class,
+            'engineer_id'
+        );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Approval History Relationship
+    |--------------------------------------------------------------------------
+    */
 
     public function approvalHistory()
     {
-        return $this->hasMany(ApprovalHistory::class);
+        return $this->hasMany(
+            ApprovalHistory::class
+        );
     }
 }
