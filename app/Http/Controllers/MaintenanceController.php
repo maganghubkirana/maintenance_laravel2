@@ -30,8 +30,11 @@ class MaintenanceController extends Controller
             'priority' => ['required', Rule::in(['LOW','MEDIUM','HIGH','CRITICAL'])],
             'description' => ['required','string','max:5000'],
         ]);
-        $data['engineer_id'] = $data['engineer_id'] ?: auth()->id();
+        
+        // Perbaikan di baris ini: menggunakan ?? agar tidak error saat key 'engineer_id' tidak ada
+        $data['engineer_id'] = $data['engineer_id'] ?? auth()->id();
         $data['status'] = 'PENDING_SUPERVISOR';
+        
         $maintenance = MaintenanceRequest::create($data);
         return back()->with('success', "Maintenance #{$maintenance->id} berhasil dibuat dan dikirim ke Supervisor.");
     }

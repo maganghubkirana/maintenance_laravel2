@@ -8,11 +8,44 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckPermission
 {
-    public function handle(Request $request, Closure $next, string $permission): Response
-    {
-        if (!auth()->check() || !auth()->user()->hasPermission($permission)) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman tersebut!');
+    /**
+     * Handle incoming request.
+     */
+    public function handle(
+        Request $request,
+        Closure $next,
+        string $permission
+    ): Response {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Belum Login
+        |--------------------------------------------------------------------------
+        */
+
+        if (!auth()->check()) {
+            return redirect()->route('login');
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cek Permission
+        |--------------------------------------------------------------------------
+        */
+
+        if (!auth()->user()->hasPermission($permission)) {
+
+            abort(
+                403,
+                'Anda tidak memiliki hak akses ke halaman tersebut.'
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Memiliki Permission
+        |--------------------------------------------------------------------------
+        */
 
         return $next($request);
     }
