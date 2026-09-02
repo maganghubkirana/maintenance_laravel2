@@ -30,8 +30,11 @@ class MaintenanceController extends Controller
             'priority' => ['required', Rule::in(['LOW','MEDIUM','HIGH','CRITICAL'])],
             'description' => ['required','string','max:5000'],
         ]);
-        $data['engineer_id'] = $data['engineer_id'] ?: auth()->id();
+        
+        // Perbaikan di baris ini: menggunakan ?? agar tidak error saat key 'engineer_id' tidak ada
+        $data['engineer_id'] = $data['engineer_id'] ?? auth()->id();
         $data['status'] = 'PENDING_SUPERVISOR';
+        
         $maintenance = MaintenanceRequest::create($data);
         return back()->with('success', "Maintenance #{$maintenance->id} berhasil dibuat dan dikirim ke Supervisor.");
     }
@@ -75,5 +78,13 @@ class MaintenanceController extends Controller
     {
         $history = MaintenanceRequest::with('equipment','engineer')->whereIn('status',['REJECTED','APPROVED','IN_PROGRESS','COMPLETED'])->latest()->paginate(10);
         return view('history.index', compact('history'));
+    }
+
+    public function show($id)
+    {
+        // Ambil data maintenance berdasarkan ID
+        $ticket = Maintenance::findOrFail($id); 
+
+        return view('maintenance.show', compact('ticket'));
     }
 }

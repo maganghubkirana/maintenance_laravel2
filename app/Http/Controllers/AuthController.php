@@ -27,6 +27,7 @@ class AuthController extends Controller
             'email'       => $data['email'],
             'password'    => Hash::make($data['password']),
             'role'        => $request->input('role', 'ENGINEER'),
+            // Perbaikan sintaks input()
             'permissions' => $request->input('permissions', ['dashboard']),
         ]);
 
@@ -36,14 +37,14 @@ class AuthController extends Controller
         return redirect()->route('dashboard')->with('success', 'Registrasi berhasil.');
     }
 
-   public function login(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'username' => 'required|string', 
             'password' => 'required|string'
         ]);
 
-        $loginInput = $request->input('username');
+        $loginInput = trim($request->input('username'));
         $fieldType  = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $credentials = [
@@ -51,6 +52,7 @@ class AuthController extends Controller
             'password'  => $request->input('password'),
         ];
 
+        // Eksekusi Autentikasi
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()
                 ->withErrors(['username' => 'Username/Email atau password salah.'])
@@ -69,11 +71,10 @@ class AuthController extends Controller
         return redirect()->intended(route('dashboard'));
     }
 
-    // Tambahkan method ini untuk menampilkan view portal pilihan role
     public function selectRole()
     {
-        // Memastikan hanya SUPERADMIN yang bisa mengakses halaman ini
-        if (strtoupper(Auth::user()->role) !== 'SUPERADMIN') {
+        // Safety Check: Pastikan user terautentikasi sebelum cek role
+        if (!Auth::check() || strtoupper(Auth::user()->role) !== 'SUPERADMIN') {
             return redirect()->route('dashboard');
         }
 
@@ -91,12 +92,15 @@ class AuthController extends Controller
 
     public function dashboard(Request $request)
     {
-        // Mengambil role aktif (jika superadmin memilih switch_role dari portal)
-        $activeRole = $request->query('switch_role', Auth::user()->role);
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
 
-        // Ubah 'dashboard' menjadi 'dashboard.index'
+        $user = Auth::user();
+        $activeRole = $request->query('switch_role', $user->role);
+
         return view('dashboard.index', [
-            'user'       => Auth::user(),
+            'user'       => $user,
             'activeRole' => strtoupper($activeRole)
         ]);
     }
