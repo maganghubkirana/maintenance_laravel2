@@ -79,15 +79,4 @@ class MaintenanceController extends Controller
         $history = MaintenanceRequest::with('equipment','engineer')->whereIn('status',['REJECTED','APPROVED','IN_PROGRESS','COMPLETED'])->latest()->paginate(10);
         return view('history.index', compact('history'));
     }
-<<<<<<< HEAD
-
-    public function show($id)
-    {
-        // Ambil data maintenance berdasarkan ID
-        $ticket = Maintenance::findOrFail($id); 
-
-        return view('maintenance.show', compact('ticket'));
-    }
-=======
->>>>>>> edfdccbfd86f27f7db967e4261c08f0d5e58b8a2
 }
