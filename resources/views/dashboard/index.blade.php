@@ -6,6 +6,17 @@
 @section('content')
 <div class="space-y-6">
 
+    <!-- Header Action / Welcome Banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div>
+            <h2 class="text-xl font-bold text-slate-800">Selamat Datang di Maintenance X</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Pantau status perangkat dan aktivitas pemeliharaan secara real-time.</p>
+        </div>
+        <a href="{{ route('maintenance.index') }}" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-blue-500/20 whitespace-nowrap">
+            <span class="text-lg leading-none mr-1.5">+</span> Request Maintenance
+        </a>
+    </div>
+
     <!-- Top Grid: Cards + Chart -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
@@ -17,14 +28,14 @@
                 <div>
                     <div class="flex items-center gap-2 text-slate-800 font-bold mb-1">
                         <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        <h3>System Overview</h3>
+                        <h3>Equipment</h3>
                     </div>
-                    <p class="text-xs text-slate-400">Ringkasan kondisi equipment & aktivitas</p>
+                    <p class="text-xs text-slate-400">Total aset terdaftar di sistem</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                        <span class="text-3xl font-bold text-slate-900">3</span>
-                        <span class="block text-xs text-slate-500 font-medium">Equipment terdaftar</span>
+                        <span class="text-3xl font-bold text-slate-900">{{ $totalEquipment ?? 3 }}</span>
+                        <span class="block text-xs text-slate-500 font-medium">Unit perangkat</span>
                     </div>
                     <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -32,16 +43,19 @@
                 </div>
             </div>
 
-            <!-- Card 2: + Request Maintenance Button & Active Stat -->
-            <div class="flex flex-col gap-4">
-                <a href="{{ route('maintenance.index') }}" class="w-full py-3 px-4 bg-blue-50 hover:bg-blue-100/80 text-blue-700 font-semibold rounded-2xl border border-blue-200/60 transition flex items-center justify-center gap-2 text-sm shadow-sm">
-                    <span class="text-lg leading-none">+</span> Request Maintenance
-                </a>
-
-                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+            <!-- Card 2: Active / In Progress Stat -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-2 text-slate-800 font-bold mb-1">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <h3>Sedang Diproses</h3>
+                    </div>
+                    <p class="text-xs text-slate-400">Maintenance aktif berjalan</p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                        <span class="text-3xl font-bold text-slate-900">0</span>
-                        <span class="block text-xs text-slate-500 font-medium mt-0.5">Approved / In Progress</span>
+                        <span class="text-3xl font-bold text-slate-900">{{ $inProgressCount ?? 0 }}</span>
+                        <span class="block text-xs text-slate-500 font-medium">Approved / In Progress</span>
                     </div>
                     <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -55,7 +69,7 @@
                     <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <span class="text-2xl font-bold text-slate-900">1</span>
+                    <span class="text-2xl font-bold text-slate-900">{{ $pendingCount ?? 1 }}</span>
                     <span class="block text-xs text-slate-500 font-medium">Menunggu approval</span>
                 </div>
             </div>
@@ -66,7 +80,7 @@
                     <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center mb-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <span class="text-2xl font-bold text-slate-900">0</span>
+                    <span class="text-2xl font-bold text-slate-900">{{ $completedCount ?? 0 }}</span>
                     <span class="block text-xs text-slate-500 font-medium">Maintenance selesai</span>
                 </div>
             </div>
@@ -122,7 +136,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="6" class="py-8 text-center text-xs text-slate-400 font-medium">
+                        <td colspan="6" class="py-8 text-center text-xs text-slate-400 font-medium italic">
                             Belum ada approval history.
                         </td>
                     </tr>
@@ -138,8 +152,8 @@
                 <h3 class="font-bold text-slate-800">Recent Maintenance</h3>
                 <p class="text-xs text-slate-400">Request terbaru</p>
             </div>
-            <a href="{{ route('history') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1">
-                Lihat history &rarr;
+            <a href="{{ route('tickets.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1">
+                Lihat semua tiket &rarr;
             </a>
         </div>
         <div class="overflow-x-auto">
@@ -152,16 +166,17 @@
                         <th class="py-3 px-5">Priority</th>
                         <th class="py-3 px-5">Status</th>
                         <th class="py-3 px-5">Dibuat</th>
+                        <th class="py-3 px-5 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     <tr class="hover:bg-slate-50/80 transition">
-                        <td class="py-3.5 px-5 font-bold text-slate-900">#1</td>
+                        <td class="py-3.5 px-5 font-bold text-blue-600">#1</td>
                         <td class="py-3.5 px-5">
                             <span class="font-semibold text-slate-800 block">Generator 01</span>
                             <span class="text-[11px] text-slate-400 font-mono">EQ-003</span>
                         </td>
-                        <td class="py-3.5 px-5">engineer</td>
+                        <td class="py-3.5 px-5 font-medium text-slate-700">engineer</td>
                         <td class="py-3.5 px-5">
                             <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded bg-red-100 text-red-700 uppercase">HIGH</span>
                         </td>
@@ -171,6 +186,11 @@
                             </span>
                         </td>
                         <td class="py-3.5 px-5 text-xs text-slate-400">28/08/2026 11:07</td>
+                        <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                            <a href="{{ route('tickets.show', 1) }}" class="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                                Detail
+                            </a>
+                        </td>
                     </tr>
                 </tbody>
             </table>

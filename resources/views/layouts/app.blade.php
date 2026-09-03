@@ -49,6 +49,12 @@
                             </a>
                         @endif
 
+                        @if(auth()->user()->hasPermission('tickets'))
+                            <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('tickets.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('tickets.index') }}">
+                                Tickets
+                            </a>
+                        @endif
+
                         @if(auth()->user()->hasPermission('maintenance'))
                             <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('maintenance.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('maintenance.index') }}">
                                 Maintenance

@@ -65,16 +65,12 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'username' => $data['username'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-
-            'role' => $request->input('role', 'ENGINEER'),
-
-            'permissions' => $request->input(
-                'permissions',
-                ['dashboard']
-            ),
+            'username'    => $data['username'],
+            'email'       => $data['email'],
+            'password'    => Hash::make($data['password']),
+            'role'        => $request->input('role', 'ENGINEER'),
+            // Perbaikan sintaks input()
+            'permissions' => $request->input('permissions', ['dashboard']),
         ]);
 
         Auth::login($user);
@@ -86,9 +82,7 @@ class AuthController extends Controller
             ->with('success', 'Registrasi berhasil.');
     }
 
-    /**
-     * Proses Login
-     */
+
     public function login(Request $request)
     {
         $request->validate([
@@ -96,44 +90,20 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $loginInput = $request->input('username');
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cek apakah input berupa email atau username
-        |--------------------------------------------------------------------------
-        */
-
-        $fieldType = filter_var(
-            $loginInput,
-            FILTER_VALIDATE_EMAIL
-        )
-            ? 'email'
-            : 'username';
+        $loginInput = trim($request->input('username'));
+        $fieldType  = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $credentials = [
             $fieldType => $loginInput,
             'password' => $request->input('password'),
         ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | LOGIN GAGAL
-        |--------------------------------------------------------------------------
-        |
-        | Jika username/email atau password salah,
-        | langsung tampilkan halaman 403 custom.
-        |
-        */
 
-        if (!Auth::attempt(
-            $credentials,
-            $request->boolean('remember')
-        )) {
-            abort(
-                403,
-                'Username/Email atau password yang Anda masukkan salah.'
-            );
+        // Eksekusi Autentikasi
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withErrors(['username' => 'Username/Email atau password salah.'])
+                ->withInput($request->only('username'));
         }
 
         /*
@@ -171,21 +141,11 @@ class AuthController extends Controller
         );
     }
 
-    /**
-     * Halaman pemilihan role Superadmin
-     */
     public function selectRole()
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Hanya SUPERADMIN
-        |--------------------------------------------------------------------------
-        */
+        // Safety Check: Pastikan user terautentikasi sebelum cek role
+        if (!Auth::check() || strtoupper(Auth::user()->role) !== 'SUPERADMIN') {
 
-        if (
-            !Auth::check() ||
-            strtoupper(Auth::user()->role) !== 'SUPERADMIN'
-        ) {
             return redirect()->route('dashboard');
         }
 
@@ -211,20 +171,18 @@ class AuthController extends Controller
      */
     public function dashboard(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Mengambil role aktif
-        |--------------------------------------------------------------------------
-        */
 
-        $activeRole = $request->query(
-            'switch_role',
-            Auth::user()->role
-        );
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+        $activeRole = $request->query('switch_role', $user->role);
 
         return view('dashboard.index', [
-            'user' => Auth::user(),
-            'activeRole' => strtoupper($activeRole),
+            'user'       => $user,
+            'activeRole' => strtoupper($activeRole)
+
         ]);
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\TicketController;
 
 
 /*
@@ -188,6 +189,7 @@ Route::middleware('auth')->group(function () {
 
 });
 
+<<<<<<< HEAD
 
 /*
 |--------------------------------------------------------------------------
@@ -206,3 +208,22 @@ Route::middleware('auth')->group(function () {
     )->name('select-role');
 
 });
+=======
+Route::middleware(['auth'])->group(function () {
+    // Portal khusus pemiliham role (Role Selection)
+    Route::get('/select-role', [AuthController::class, 'selectRole'])->name('select-role');
+    
+    // Route dashboard utama
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tickets', TicketController::class);
+    Route::patch('tickets/{id}/assign', [TicketController::class, 'assignTechnician'])->name('tickets.assign');
+    Route::patch('tickets/{id}/status', [TicketController::class, 'updateStatus'])->name('tickets.status');
+    Route::post('tickets/{id}/logs', [TicketController::class, 'addLog'])->name('tickets.addLog');
+});
+
+
+Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('tickets.show');
+>>>>>>> 02d5d58f0069eeac5bd49322c104ce89f936d472

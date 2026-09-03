@@ -15,6 +15,7 @@ class UserController extends Controller
         // List daftar fitur/modul yang ada di aplikasi
         $availablePermissions = [
             'dashboard'   => 'Dashboard Overview',
+            'tickets'     => 'Kelola Ticket',
             'maintenance' => 'Kelola Maintenance Request',
             'history'     => 'Lihat Maintenance History',
             'equipment'   => 'Kelola Equipment',
