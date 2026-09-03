@@ -1,58 +1,208 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\MaintenanceController;
 
+
+/*
+|--------------------------------------------------------------------------
+| Guest Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class,'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class,'login'])->name('login.store');
-    Route::get('/register', [AuthController::class,'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class,'register'])->name('register.store');
+
+    Route::get('/login', [AuthController::class, 'showLogin'])
+        ->name('login');
+
+    Route::post('/login', [AuthController::class, 'login'])
+        ->name('login.store');
+
+    Route::get('/register', [AuthController::class, 'showRegister'])
+        ->name('register');
+
+    Route::post('/register', [AuthController::class, 'register'])
+        ->name('register.store');
+
 });
 
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class,'logout'])->name('logout');
-    Route::get('/', fn() => redirect()->route('dashboard'));
 
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class,'index'])
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logout
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/logout', [AuthController::class, 'logout'])
+        ->name('logout');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Root
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/', function () {
+        return redirect()->route('dashboard');
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('permission:dashboard')
         ->name('dashboard');
 
-    // Maintenance
+
+    /*
+    |--------------------------------------------------------------------------
+    | Maintenance
+    |--------------------------------------------------------------------------
+    */
+
     Route::middleware('permission:maintenance')->group(function () {
-        Route::get('/maintenance', [MaintenanceController::class,'index'])->name('maintenance.index');
-        Route::post('/maintenance', [MaintenanceController::class,'store'])->name('maintenance.store');
-        Route::post('/maintenance/{maintenance}/status', [MaintenanceController::class,'updateStatus'])->name('maintenance.status');
+
+        // Halaman Maintenance Request
+        Route::get('/maintenance', [MaintenanceController::class, 'index'])
+            ->name('maintenance.index');
+
+        // Membuat Maintenance Request
+        Route::post('/maintenance', [MaintenanceController::class, 'store'])
+            ->name('maintenance.store');
+
+        // Update Status Maintenance
+        Route::post(
+            '/maintenance/{maintenance}/status',
+            [MaintenanceController::class, 'updateStatus']
+        )->name('maintenance.status');
+
     });
 
-    // History
-    Route::get('/history', [MaintenanceController::class,'history'])
+
+    /*
+    |--------------------------------------------------------------------------
+    | Maintenance History
+    |--------------------------------------------------------------------------
+    */
+
+    // Halaman History
+    Route::get('/history', [MaintenanceController::class, 'history'])
         ->middleware('permission:history')
         ->name('history');
 
-    // Equipment (GANTI middleware 'role:ADMIN' menjadi 'permission:equipment')
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export History PDF
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/history/export/pdf',
+        [MaintenanceController::class, 'exportPdf']
+    )
+        ->middleware('permission:history')
+        ->name('history.export.pdf');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export History Excel
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/history/export/excel',
+        [MaintenanceController::class, 'exportExcel']
+    )
+        ->middleware('permission:history')
+        ->name('history.export.excel');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Equipment
+    |--------------------------------------------------------------------------
+    */
+
     Route::middleware('permission:equipment')->group(function () {
-        Route::get('/equipment', [EquipmentController::class,'index'])->name('equipment.index');
-        Route::post('/equipment', [EquipmentController::class,'store'])->name('equipment.store');
-        Route::delete('/equipment/{equipment}', [EquipmentController::class,'destroy'])->name('equipment.destroy');
+
+        // Daftar Equipment
+        Route::get('/equipment', [EquipmentController::class, 'index'])
+            ->name('equipment.index');
+
+        // Tambah Equipment
+        Route::post('/equipment', [EquipmentController::class, 'store'])
+            ->name('equipment.store');
+
+        // Hapus Equipment
+        Route::delete(
+            '/equipment/{equipment}',
+            [EquipmentController::class, 'destroy']
+        )->name('equipment.destroy');
+
     });
 
-    // User Management (Khusus yang memiliki permission 'users')
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Management
+    |--------------------------------------------------------------------------
+    */
+
     Route::middleware('permission:users')->group(function () {
-        Route::resource('users', UserController::class)->only(['index', 'store', 'destroy']);
-        Route::put('/users/{user}/permissions', [UserController::class, 'updatePermissions'])->name('users.permissions');
+
+        // User List
+        Route::resource('users', UserController::class)
+            ->only([
+                'index',
+                'store',
+                'destroy'
+            ]);
+
+        // Update Permission User
+        Route::put(
+            '/users/{user}/permissions',
+            [UserController::class, 'updatePermissions']
+        )->name('users.permissions');
+
     });
+
 });
 
-Route::middleware(['auth'])->group(function () {
-    // Portal khusus pemiliham role (Role Selection)
-    Route::get('/select-role', [AuthController::class, 'selectRole'])->name('select-role');
-    
-    // Route dashboard utama
-    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| Role Selection
+|--------------------------------------------------------------------------
+|
+| Digunakan setelah login apabila user perlu memilih role.
+|
+*/
+
+Route::middleware('auth')->group(function () {
+
+    Route::get(
+        '/select-role',
+        [AuthController::class, 'selectRole']
+    )->name('select-role');
+
 });
