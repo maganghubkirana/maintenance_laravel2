@@ -191,12 +191,8 @@ Route::middleware('auth')->group(function () {
 
     });
 
-<<<<<<< HEAD
-});
-=======
-});
 
-
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -237,4 +233,4 @@ Route::middleware('auth')->group(function () {
 
 Route::resource('tickets', TicketController::class); 
 // atau MaintenanceTicketController
->>>>>>> 1e8649f3c2e4c21c075cda7dfe1b06c361f2321a
+

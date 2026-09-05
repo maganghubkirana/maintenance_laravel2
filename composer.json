@@ -4,12 +4,9 @@
   "type": "project",
   "description": "Equipment Maintenance System migrated from Express + React to Laravel + Blade.",
   "require": {"php": "^8.2", "laravel/framework": "^12.0", "laravel/tinker": "^2.10",
-<<<<<<< HEAD
-    "barryvdh/laravel-dompdf": "*"},
-=======
-    "barryvdh/laravel-dompdf": "^3.1",
-    "maatwebsite/excel": "3.1.70"},
->>>>>>> 1e8649f3c2e4c21c075cda7dfe1b06c361f2321a
+
+    "barryvdh/laravel-dompdf": "*",
+    "maatwebsite/excel": "^3.1"},
   "require-dev": {"fakerphp/faker": "^1.24", "laravel/pail": "^1.2", "laravel/pint": "^1.24", "mockery/mockery": "^1.6", "nunomaduro/collision": "^8.6", "phpunit/phpunit": "^11.5"},
   "autoload": {"psr-4": {"App\\": "app/", "Database\\Factories\\": "database/factories/", "Database\\Seeders\\": "database/seeders/"}},
   "scripts": {"post-autoload-dump": ["Illuminate\\Foundation\\ComposerScripts::postAutoloadDump", "@php artisan package:discover --ansi"]},
