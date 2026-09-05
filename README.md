@@ -32,10 +32,10 @@ Project ini adalah migrasi **Express + MySQL + React/Vite** menjadi **Laravel + 
 11. Buka http://127.0.0.1:8000.
 
 ## Akun demo
-- admin / admin123
-- engineer / engineer123
-- supervisor / supervisor123
-- manager / manager123
+- admin / 123456
+- engineer / 123456
+- supervisor / 123456
+- manager / 123456
 
 ## Catatan database lama
 Migration dibuat agar dapat membuat tabel yang dipakai sistem bila belum ada. Jika database lama sudah memiliki tabel tersebut, migration tidak menghapus data. **Backup database terlebih dahulu** sebelum migrate.
