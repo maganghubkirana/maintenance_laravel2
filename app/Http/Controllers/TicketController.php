@@ -6,6 +6,7 @@ use App\Models\Device;
 use App\Models\MaintenanceLog;
 use App\Models\MaintenanceTicket;
 use App\Models\TicketStatusHistory;
+use App\Models\Sparepart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -179,5 +180,53 @@ class TicketController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Log tindakan perbaikan berhasil ditambahkan.');
+    }
+
+    public function addSparepart(Request $request, $ticketId)
+    {
+        $request->validate([
+            'sparepart_id' => 'required|exists:spareparts,id',
+            'quantity'     => 'required|integer|min:1',
+        ]);
+
+        $ticket = MaintenanceTicket::findOrFail($ticketId);
+        $sparepart = Sparepart::findOrFail($request->sparepart_id);
+
+        if ($sparepart->stock < $request->quantity) {
+            return redirect()->back()->with('error', 'Stok tidak mencukupi!');
+        }
+
+        DB::transaction(function () use ($ticket, $sparepart, $request) {
+            $qty = $request->quantity;
+            $totalPrice = $sparepart->price * $qty;
+
+            $ticket->spareparts()->attach($sparepart->id, [
+                'quantity'    => $qty,
+                'unit_price'  => $sparepart->price,
+                'total_price' => $totalPrice,
+            ]);
+
+            // Potong stok otomatis
+            $sparepart->decrement('stock', $qty);
+        });
+
+        return redirect()->back()->with('success', 'Sparepart berhasil digunakan!');
+    }
+
+    public function removeSparepart($ticketId, $sparepartId)
+    {
+        $ticket = MaintenanceTicket::findOrFail($ticketId);
+        $sparepart = Sparepart::findOrFail($sparepartId);
+        $pivotData = $ticket->spareparts()->where('sparepart_id', $sparepartId)->first();
+
+        if ($pivotData) {
+            DB::transaction(function () use ($ticket, $sparepart, $pivotData) {
+                // Kembalikan stok yang pernah dipotong
+                $sparepart->increment('stock', $pivotData->pivot->quantity);
+                $ticket->spareparts()->detach($sparepart->id);
+            });
+        }
+
+        return redirect()->back()->with('success', 'Sparepart dihapus dan stok dikembalikan!');
     }
 }

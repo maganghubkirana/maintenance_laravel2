@@ -35,4 +35,11 @@ class MaintenanceTicket extends Model
     {
         return $this->hasMany(TicketStatusHistory::class, 'ticket_id');
     }//
+
+    public function spareparts()
+    {
+        return $this->belongsToMany(Sparepart::class, 'ticket_spareparts')
+                    ->withPivot('quantity', 'unit_price', 'total_price')
+                    ->withTimestamps();
+    }
 }

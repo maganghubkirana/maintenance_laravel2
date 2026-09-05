@@ -68,11 +68,17 @@
                         @endif
 
                         @if(auth()->user()->hasPermission('equipment'))
-                            <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('equipment.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('equipment.index') }}">
-                                Equipment
+                        <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('equipment.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('equipment.index') }}">
+                            Equipment
+                        </a>
+                        @endif
+                        
+                        @if(auth()->user()->hasPermission('spareparts'))
+                            <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('spareparts.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('spareparts.index') }}">
+                                Spareparts
                             </a>
                         @endif
-
+                        
                         @if(auth()->user()->hasPermission('users'))
                             <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('users.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('users.index') }}">
                                 User Management

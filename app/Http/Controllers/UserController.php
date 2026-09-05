@@ -19,6 +19,7 @@ class UserController extends Controller
             'maintenance' => 'Kelola Maintenance Request',
             'history'     => 'Lihat Maintenance History',
             'equipment'   => 'Kelola Equipment',
+            'spareparts'  => 'Kelola Sparepart',
             'users'       => 'User Management & Hak Akses',
         ];
 

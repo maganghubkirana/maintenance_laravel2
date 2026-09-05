@@ -7,7 +7,7 @@ use App\Models\MaintenanceRequest;
 use App\Models\ApprovalHistory;
 use App\Exports\MaintenanceHistoryExport;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Facades\Excel;                    
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;

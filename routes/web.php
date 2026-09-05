@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\TicketController;
 
 
@@ -43,23 +44,19 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Logout
+    | Logout & Root
     |--------------------------------------------------------------------------
     */
 
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Root
-    |--------------------------------------------------------------------------
-    */
-
     Route::get('/', function () {
         return redirect()->route('dashboard');
     });
+
+    Route::get('/select-role', [AuthController::class, 'selectRole'])
+        ->name('select-role');
 
 
     /*
@@ -75,67 +72,86 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Maintenance
+    | Tickets Module
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware('permission:maintenance')->group(function () {
+    Route::middleware('permission:tickets')->group(function () {
 
-        // Halaman Maintenance Request
-        Route::get('/maintenance', [MaintenanceController::class, 'index'])
-            ->name('maintenance.index');
+        // Master CRUD Tiket
+        Route::resource('tickets', TicketController::class);
 
-        // Membuat Maintenance Request
-        Route::post('/maintenance', [MaintenanceController::class, 'store'])
-            ->name('maintenance.store');
+        // Aksi Tambahan Tiket (Assign, Status Update, & Logs)
+        Route::patch('/tickets/{id}/assign', [TicketController::class, 'assignTechnician'])
+            ->name('tickets.assign');
 
-        // Update Status Maintenance
-        Route::post(
-            '/maintenance/{maintenance}/status',
-            [MaintenanceController::class, 'updateStatus']
-        )->name('maintenance.status');
+        Route::patch('/tickets/{id}/status', [TicketController::class, 'updateStatus'])
+            ->name('tickets.status');
+
+        Route::post('/tickets/{id}/logs', [TicketController::class, 'addLog'])
+            ->name('tickets.addLog');
+
+        // Penggunaan Sparepart di dalam Tiket
+        Route::post('/tickets/{ticket}/spareparts', [TicketController::class, 'addSparepart'])
+            ->name('tickets.spareparts.store');
+
+        Route::delete('/tickets/{ticket}/spareparts/{sparepart}', [TicketController::class, 'removeSparepart'])
+            ->name('tickets.spareparts.destroy');
 
     });
 
 
     /*
     |--------------------------------------------------------------------------
-    | Maintenance History
+    | Maintenance Module
     |--------------------------------------------------------------------------
     */
 
-    // Halaman History
-    Route::get('/history', [MaintenanceController::class, 'history'])
-        ->middleware('permission:history')
-        ->name('history');
+    Route::middleware('permission:maintenance')->group(function () {
+
+        Route::get('/maintenance', [MaintenanceController::class, 'index'])
+            ->name('maintenance.index');
+
+        Route::post('/maintenance', [MaintenanceController::class, 'store'])
+            ->name('maintenance.store');
+
+        Route::post('/maintenance/{maintenance}/status', [MaintenanceController::class, 'updateStatus'])
+            ->name('maintenance.status');
+
+    });
 
 
     /*
     |--------------------------------------------------------------------------
-    | Export History PDF
+    | Maintenance History & Export
     |--------------------------------------------------------------------------
     */
 
-    Route::get(
-        '/history/export/pdf',
-        [MaintenanceController::class, 'exportPdf']
-    )
-        ->middleware('permission:history')
-        ->name('history.export.pdf');
+    Route::middleware('permission:history')->group(function () {
+
+        Route::get('/history', [MaintenanceController::class, 'history'])
+            ->name('history');
+
+        Route::get('/history/export/pdf', [MaintenanceController::class, 'exportPdf'])
+            ->name('history.export.pdf');
+
+        Route::get('/history/export/excel', [MaintenanceController::class, 'exportExcel'])
+            ->name('history.export.excel');
+
+    });
 
 
     /*
     |--------------------------------------------------------------------------
-    | Export History Excel
+    | Sparepart Inventory
     |--------------------------------------------------------------------------
     */
 
-    Route::get(
-        '/history/export/excel',
-        [MaintenanceController::class, 'exportExcel']
-    )
-        ->middleware('permission:history')
-        ->name('history.export.excel');
+    Route::middleware('permission:spareparts')->group(function () {
+
+        Route::resource('spareparts', SparepartController::class);
+
+    });
 
 
     /*
@@ -146,19 +162,14 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('permission:equipment')->group(function () {
 
-        // Daftar Equipment
         Route::get('/equipment', [EquipmentController::class, 'index'])
             ->name('equipment.index');
 
-        // Tambah Equipment
         Route::post('/equipment', [EquipmentController::class, 'store'])
             ->name('equipment.store');
 
-        // Hapus Equipment
-        Route::delete(
-            '/equipment/{equipment}',
-            [EquipmentController::class, 'destroy']
-        )->name('equipment.destroy');
+        Route::delete('/equipment/{equipment}', [EquipmentController::class, 'destroy'])
+            ->name('equipment.destroy');
 
     });
 
@@ -171,59 +182,13 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('permission:users')->group(function () {
 
-        // User List
-        Route::resource('users', UserController::class)
-            ->only([
-                'index',
-                'store',
-                'destroy'
-            ]);
+        Route::resource('users', UserController::class)->only([
+            'index', 'store', 'destroy'
+        ]);
 
-        // Update Permission User
-        Route::put(
-            '/users/{user}/permissions',
-            [UserController::class, 'updatePermissions']
-        )->name('users.permissions');
+        Route::put('/users/{user}/permissions', [UserController::class, 'updatePermissions'])
+            ->name('users.permissions');
 
     });
 
 });
-
-<<<<<<< HEAD
-
-/*
-|--------------------------------------------------------------------------
-| Role Selection
-|--------------------------------------------------------------------------
-|
-| Digunakan setelah login apabila user perlu memilih role.
-|
-*/
-
-Route::middleware('auth')->group(function () {
-
-    Route::get(
-        '/select-role',
-        [AuthController::class, 'selectRole']
-    )->name('select-role');
-
-});
-=======
-Route::middleware(['auth'])->group(function () {
-    // Portal khusus pemiliham role (Role Selection)
-    Route::get('/select-role', [AuthController::class, 'selectRole'])->name('select-role');
-    
-    // Route dashboard utama
-    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::resource('tickets', TicketController::class);
-    Route::patch('tickets/{id}/assign', [TicketController::class, 'assignTechnician'])->name('tickets.assign');
-    Route::patch('tickets/{id}/status', [TicketController::class, 'updateStatus'])->name('tickets.status');
-    Route::post('tickets/{id}/logs', [TicketController::class, 'addLog'])->name('tickets.addLog');
-});
-
-
-Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('tickets.show');
->>>>>>> 02d5d58f0069eeac5bd49322c104ce89f936d472
