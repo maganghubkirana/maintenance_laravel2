@@ -32,6 +32,7 @@
 
 //         return view('dashboard.index', compact('stats','trend','status','recent','approvals'));
 //     }
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -45,28 +46,28 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $role = strtolower($user->role);
+        $role = strtoupper($user->role);
 
-        switch ($role) {
-            case 'superadmin':
-            case 'super admin':
-                return view('dashboard.superadmin', [
-                    'totalUsers'       => User::count(),
-                    'totalTickets'     => Ticket::count(),
-                    'totalEquipment'   => Equipment::count(),
-                    'totalSpareparts'  => Sparepart::count(),
-                    'recentTickets'    => Ticket::latest()->take(6)->get(),
-                    'lowStockCount'    => Sparepart::whereColumn('stock', '<=', 'min_stock')->count(),
-                ]);
+        // Jika SUPERADMIN, langsung tampilkan layouts.app
+       if ($role === 'SUPERADMIN') {
+            return view('dashboard.superadmin', [
+                'totalUsers'       => User::count(),
+                'totalTickets'     => Ticket::count(),
+                'totalEquipment'   => Equipment::count(),
+                'totalSpareparts'  => Sparepart::count(),
+                'recentTickets'    => Ticket::latest()->take(6)->get(),
+            ]);
+        }
 
+        // Untuk role lainnya, tetap menggunakan view khusus di folder dashboard/
+        switch (strtolower($role)) {
             case 'admin':
                 return view('dashboard.admin', [
-                    'totalTickets'     => Ticket::count(),
-                    'pendingTickets'   => Ticket::where('status', 'pending')->count(),
-                    'inProgressTickets'=> Ticket::where('status', 'in_progress')->count(),
-                    'completedTickets' => Ticket::where('status', 'completed')->count(),
+                    'totalTickets'       => Ticket::count(),
+                    'pendingTickets'     => Ticket::where('status', 'pending')->count(),
+                    'inProgressTickets'  => Ticket::where('status', 'in_progress')->count(),
+                    'completedTickets'   => Ticket::where('status', 'completed')->count(),
                     'lowStockSpareparts' => Sparepart::whereColumn('stock', '<=', 'min_stock')->get(),
-                    'recentTickets'    => Ticket::latest()->take(5)->get(),
                 ]);
 
             case 'engineer':
@@ -85,8 +86,6 @@ class DashboardController extends Controller
                     'pendingTickets'   => Ticket::where('status', 'pending')->count(),
                     'inProgressTickets'=> Ticket::where('status', 'in_progress')->count(),
                     'completedTickets' => Ticket::where('status', 'completed')->count(),
-                    'unassignedTickets'=> Ticket::whereNull('assigned_to')->latest()->take(5)->get(),
-                    'recentTickets'    => Ticket::latest()->take(5)->get(),
                 ]);
 
             case 'manager':
@@ -98,17 +97,15 @@ class DashboardController extends Controller
                     'completionRate'   => $total > 0 ? round(($completed / $total) * 100) : 0,
                     'totalEquipment'   => Equipment::count(),
                     'totalSpareparts'  => Sparepart::count(),
-                    'recentTickets'    => Ticket::latest()->take(6)->get(),
                 ]);
 
             default:
                 return view('dashboard.user', [
                     'myReportedCount'  => Ticket::where('user_id', $user->id)->count(),
-                    'myPendingCount'   => Ticket::where('user_id', $user->id)->where('status', 'pending')->count(),
                     'myActiveCount'    => Ticket::where('user_id', $user->id)->where('status', 'in_progress')->count(),
                     'myCompletedCount' => Ticket::where('user_id', $user->id)->where('status', 'completed')->count(),
-                    'myReportedList'   => Ticket::where('user_id', $user->id)->latest()->take(6)->get(),
                 ]);
         }
     }
 }
+
