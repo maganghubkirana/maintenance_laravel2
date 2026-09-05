@@ -27,9 +27,10 @@
     23 => 'Barryvdh\\DomPDF\\ServiceProvider',
     24 => 'Laravel\\Pail\\PailServiceProvider',
     25 => 'Laravel\\Tinker\\TinkerServiceProvider',
-    26 => 'Carbon\\Laravel\\ServiceProvider',
-    27 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    28 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    26 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+    27 => 'Carbon\\Laravel\\ServiceProvider',
+    28 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    29 => 'Termwind\\Laravel\\TermwindServiceProvider',
   ),
   'eager' => 
   array (
@@ -45,9 +46,10 @@
     9 => 'Illuminate\\View\\ViewServiceProvider',
     10 => 'Barryvdh\\DomPDF\\ServiceProvider',
     11 => 'Laravel\\Pail\\PailServiceProvider',
-    12 => 'Carbon\\Laravel\\ServiceProvider',
-    13 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
-    14 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    12 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+    13 => 'Carbon\\Laravel\\ServiceProvider',
+    14 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
+    15 => 'Termwind\\Laravel\\TermwindServiceProvider',
   ),
   'deferred' => 
   array (

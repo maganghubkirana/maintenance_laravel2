@@ -191,4 +191,50 @@ Route::middleware('auth')->group(function () {
 
     });
 
+<<<<<<< HEAD
 });
+=======
+});
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Role Selection
+|--------------------------------------------------------------------------
+|
+| Digunakan setelah login apabila user perlu memilih role.
+|
+*/
+
+Route::middleware('auth')->group(function () {
+
+    Route::get(
+        '/select-role',
+        [AuthController::class, 'selectRole']
+    )->name('select-role');
+
+});
+// =======
+// Route::middleware(['auth'])->group(function () {
+//     // Portal khusus pemiliham role (Role Selection)
+//     Route::get('/select-role', [AuthController::class, 'selectRole'])->name('select-role');
+    
+//     // Route dashboard utama
+//     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+// });
+
+// Route::middleware(['auth'])->group(function () {
+//     Route::resource('tickets', TicketController::class);
+//     Route::patch('tickets/{id}/assign', [TicketController::class, 'assignTechnician'])->name('tickets.assign');
+//     Route::patch('tickets/{id}/status', [TicketController::class, 'updateStatus'])->name('tickets.status');
+//     Route::post('tickets/{id}/logs', [TicketController::class, 'addLog'])->name('tickets.addLog');
+// });
+
+
+// Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('tickets.show');
+// >>>>>>> 02d5d58f0069eeac5bd49322c104ce89f936d472
+
+Route::resource('tickets', TicketController::class); 
+// atau MaintenanceTicketController
+>>>>>>> 1e8649f3c2e4c21c075cda7dfe1b06c361f2321a
