@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipment;
 use App\Models\MaintenanceRequest;
+use App\Models\Maintenance; // Model untuk preventive_maintenances
 use App\Models\ApprovalHistory;
 use App\Exports\MaintenanceHistoryExport;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -11,6 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class MaintenanceController extends Controller
 {
@@ -245,6 +247,65 @@ class MaintenanceController extends Controller
             'success',
             "Maintenance #{$maintenance->id} berubah dari {$current} menjadi {$target}."
         );
+    }
+
+    /**
+     * =========================================================================
+     * PREVENTIVE MAINTENANCE (PERAWATAN BERKALA)
+     * =========================================================================
+     */
+
+    public function preventiveIndex()
+    {
+        $preventives = Maintenance::with(['equipment', 'technician'])->latest()->get();
+        $equipments = Equipment::where('status', '<>', 'INACTIVE')->orderBy('name')->get();
+        $engineers = \App\Models\User::whereRaw('UPPER(role) = ?', ['ENGINEER'])->orderBy('username')->get();
+
+        return view('maintenance.preventive', compact('preventives', 'equipments', 'engineers'));
+    }
+
+    public function preventiveStore(Request $request)
+    {
+        $request->validate([
+            'equipment_id'          => 'required|exists:equipment,id',
+            'title'                 => 'required|string|max:255',
+            'frequency'             => 'required|in:daily,weekly,monthly,yearly',
+            'next_maintenance_date' => 'required|date',
+            'assigned_to'           => 'nullable|exists:users,id',
+        ]);
+
+        Maintenance::create([
+            'equipment_id'          => $request->equipment_id,
+            'title'                 => $request->title,
+            'frequency'             => $request->frequency,
+            'next_maintenance_date' => $request->next_maintenance_date,
+            'assigned_to'           => $request->assigned_to,
+            'notes'                 => $request->notes,
+            'status'                => 'scheduled',
+        ]);
+
+        return back()->with('success', 'Jadwal pemeliharaan rutin berhasil ditambahkan!');
+    }
+
+    public function preventiveComplete($id)
+    {
+        $preventive = Maintenance::findOrFail($id);
+        $today = Carbon::today();
+
+        $nextDate = match ($preventive->frequency) {
+            'daily'   => $today->copy()->addDay(),
+            'weekly'  => $today->copy()->addWeek(),
+            'monthly' => $today->copy()->addMonth(),
+            'yearly'  => $today->copy()->addYear(),
+        };
+
+        $preventive->update([
+            'last_maintenance_date' => $today,
+            'next_maintenance_date' => $nextDate,
+            'status'                => 'completed',
+        ]);
+
+        return back()->with('success', 'Perawatan berkala berhasil diselesaikan dan jadwal berikutnya telah diperbarui otomatis!');
     }
 
     /**

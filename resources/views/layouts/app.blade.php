@@ -55,10 +55,40 @@
                             </a>
                         @endif
 
-                        @if(auth()->user()->hasPermission('maintenance'))
+                        <!-- @if(auth()->user()->hasPermission('maintenance'))
                             <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('maintenance.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('maintenance.index') }}">
                                 Maintenance
                             </a>
+                        @endif -->
+
+                       @if(auth()->user()->hasPermission('maintenance'))
+                            {{-- Check apakah route saat ini sedang berada di area maintenance --}}
+                            @php
+                                $isMaintenanceActive = request()->routeIs('maintenance.*');
+                            @endphp
+
+                            <details class="group border-none" {{ $isMaintenanceActive ? 'open' : '' }}>
+                                <summary class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer list-none select-none text-slate-400 hover:bg-slate-800/60 hover:text-white {{ $isMaintenanceActive ? 'bg-slate-800/40 text-white' : '' }}">
+                                    <span>Maintenance</span>
+                                    {{-- Icon Panah Dropdown --}}
+                                    <svg class="w-4 h-4 transition-transform group-open:rotate-180 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </summary>
+
+                                {{-- Submenu Maintenance (Indentasi ke dalam) --}}
+                                <div class="mt-1 ml-3 pl-3 border-l border-slate-800 flex flex-col gap-1">
+                                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all {{ request()->routeIs('maintenance.index') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" 
+                                    href="{{ route('maintenance.index') }}">
+                                        Maintenance Request
+                                    </a>
+
+                                    <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all {{ request()->routeIs('maintenance.preventive.*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" 
+                                    href="{{ route('maintenance.preventive.index') }}">
+                                        Preventive Maintenance
+                                    </a>
+                                </div>
+                            </details>
                         @endif
 
                         @if(auth()->user()->hasPermission('history'))

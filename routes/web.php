@@ -9,7 +9,7 @@ use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\TicketController;
-
+use App\Http\Controllers\PreventiveMaintenanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +57,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/select-role', [AuthController::class, 'selectRole'])
         ->name('select-role');
+
+        
 
 
     /*
@@ -233,4 +235,10 @@ Route::middleware('auth')->group(function () {
 
 Route::resource('tickets', TicketController::class); 
 // atau MaintenanceTicketController
+
+Route::middleware(['auth'])->prefix('maintenance')->name('maintenance.preventive.')->group(function () {
+    Route::get('/preventive', [PreventiveMaintenanceController::class, 'index'])->name('index');
+    Route::post('/preventive', [PreventiveMaintenanceController::class, 'store'])->name('store');
+    Route::patch('/preventive/{id}/complete', [PreventiveMaintenanceController::class, 'complete'])->name('complete');
+});
 
