@@ -10,6 +10,7 @@ use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\SparepartController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\PreventiveMaintenanceController;
+use App\Http\Controllers\ActivityLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,7 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/select-role', [AuthController::class, 'selectRole'])
         ->name('select-role');
 
-        
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');    
 
 
     /*

@@ -28,7 +28,7 @@
     @auth
         <div class="flex min-h-screen bg-slate-100">
             <!-- Sidebar -->
-            <aside class="w-64 bg-[#0B132B] text-white flex flex-col justify-between p-4 shrink-0 shadow-xl">
+            <aside class="w-64 bg-[#0B132B] text-white flex flex-col justify-between p-4 shrink-0 shadow-xl max-h-screen sticky top-0 overflow-y-auto">
                 <div>
                     <!-- Logo / Brand -->
                     <div class="flex items-center gap-3 pb-6 border-b border-slate-800">
@@ -55,14 +55,7 @@
                             </a>
                         @endif
 
-                        <!-- @if(auth()->user()->hasPermission('maintenance'))
-                            <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('maintenance.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('maintenance.index') }}">
-                                Maintenance
-                            </a>
-                        @endif -->
-
-                       @if(auth()->user()->hasPermission('maintenance'))
-                            {{-- Check apakah route saat ini sedang berada di area maintenance --}}
+                        @if(auth()->user()->hasPermission('maintenance'))
                             @php
                                 $isMaintenanceActive = request()->routeIs('maintenance.*');
                             @endphp
@@ -70,13 +63,11 @@
                             <details class="group border-none" {{ $isMaintenanceActive ? 'open' : '' }}>
                                 <summary class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer list-none select-none text-slate-400 hover:bg-slate-800/60 hover:text-white {{ $isMaintenanceActive ? 'bg-slate-800/40 text-white' : '' }}">
                                     <span>Maintenance</span>
-                                    {{-- Icon Panah Dropdown --}}
                                     <svg class="w-4 h-4 transition-transform group-open:rotate-180 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </summary>
 
-                                {{-- Submenu Maintenance (Indentasi ke dalam) --}}
                                 <div class="mt-1 ml-3 pl-3 border-l border-slate-800 flex flex-col gap-1">
                                     <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all {{ request()->routeIs('maintenance.index') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" 
                                     href="{{ route('maintenance.index') }}">
@@ -98,9 +89,9 @@
                         @endif
 
                         @if(auth()->user()->hasPermission('equipment'))
-                        <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('equipment.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('equipment.index') }}">
-                            Equipment
-                        </a>
+                            <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('equipment.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('equipment.index') }}">
+                                Equipment
+                            </a>
                         @endif
                         
                         @if(auth()->user()->hasPermission('spareparts'))
@@ -114,11 +105,18 @@
                                 User Management
                             </a>
                         @endif
+
+                        {{-- Menu Activity Logs --}}
+                        @if(auth()->user()->hasPermission('activity_logs') || auth()->user()->role === 'SUPERADMIN')
+                            <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('activity-logs.*') ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }}" href="{{ route('activity-logs.index') }}">
+                                Activity Logs
+                            </a>
+                        @endif
                     </nav>
                 </div>
 
                 <!-- Profile bottom -->
-                <div class="pt-4 border-t border-slate-800">
+                <div class="pt-4 mt-6 border-t border-slate-800">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center font-bold text-sm text-slate-300 border border-slate-700">
                             {{ strtoupper(substr(auth()->user()->username, 0, 1)) }}

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Sparepart extends Model
 {
@@ -18,5 +20,18 @@ class Sparepart extends Model
         return $this->belongsToMany(MaintenanceTicket::class, 'ticket_spareparts')
                     ->withPivot('quantity', 'unit_price', 'total_price')
                     ->withTimestamps();
+    }
+
+    use LogsActivity;
+
+    protected $guarded = ['id'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->useLogName('sparepart')
+            ->setDescriptionForEvent(fn(string $eventName) => "Stok/Data sparepart telah di-{$eventName}");
     }
 }

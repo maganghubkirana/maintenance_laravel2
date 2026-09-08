@@ -31,6 +31,7 @@
     27 => 'Carbon\\Laravel\\ServiceProvider',
     28 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     29 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    30 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
   ),
   'eager' => 
   array (
@@ -50,6 +51,7 @@
     13 => 'Carbon\\Laravel\\ServiceProvider',
     14 => 'NunoMaduro\\Collision\\Adapters\\Laravel\\CollisionServiceProvider',
     15 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    16 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
   ),
   'deferred' => 
   array (

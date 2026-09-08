@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class User extends Authenticatable
 {
@@ -43,6 +45,17 @@ class User extends Authenticatable
     protected $casts = [
         'permissions' => 'array',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->useLogName('user')
+            ->dontLogIfAttributesChangedOnly(['remember_token']) // Abaikan log jika hanya remember_token yang berubah
+            ->logExcept(['password']) // JANGAN CATAT PASSWORD KE LOG DEMI KEAMANAN
+            ->setDescriptionForEvent(fn(string $eventName) => "Akun user telah di-{$eventName}");
+    }
 
     /*
     |--------------------------------------------------------------------------
